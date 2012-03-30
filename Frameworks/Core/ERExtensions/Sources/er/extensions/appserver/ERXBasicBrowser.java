@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 import com.webobjects.foundation.NSDictionary;
 import com.webobjects.foundation.NSMutableDictionary;
 
+import er.extensions.foundation.ERXStringUtilities;
+
 /**
  * <code>ERXBasicBrowser</code> is a concrete subclass of {@link ERXBrowser}
  * that defines browser object. A browser object represents the web browser
@@ -76,6 +78,7 @@ public class ERXBasicBrowser extends ERXBrowser {
 
     private final String          _browserName;
     private final String          _version;
+    private final Integer         _majorVersion;
     private final String          _mozillaVersion;
     private final String          _platform;
     private final String          _cpu;
@@ -154,21 +157,23 @@ public class ERXBasicBrowser extends ERXBrowser {
 
         _isMozillaVersion40 = -1 < _mozillaVersion.indexOf("4.0");
 
-        _isVersion9 = -1 < _version.indexOf("9.");
-        _isVersion8 = -1 < _version.indexOf("8.");
-        _isVersion7 = -1 < _version.indexOf("7.");
-        _isVersion6 = -1 < _version.indexOf("6.");
-        _isVersion5 = -1 < _version.indexOf("5.");
-        _isVersion51 = -1 < _version.indexOf("5.1");
+        
+        String normalizedVersion = ERXStringUtilities.removeExtraDotsFromVersionString(_version);
+        _isVersion9 = normalizedVersion.startsWith("9.");
+        _isVersion8 = normalizedVersion.startsWith("8.");
+        _isVersion7 = normalizedVersion.startsWith("7.");
+        _isVersion6 = normalizedVersion.startsWith("6.");
+        _isVersion5 = normalizedVersion.startsWith("5.");
+        _isVersion51 = normalizedVersion.startsWith("5.1");
 
-        _isVersion45 = (-1 < _version.indexOf("4.5")) || (-1 < _version.indexOf("4.6")) || (-1 < _version.indexOf("4.7"));
+        _isVersion45 = normalizedVersion.startsWith("4.5") || normalizedVersion.startsWith("4.6") || normalizedVersion.startsWith("4.7");
 
-        _isVersion41 = -1 < _version.indexOf("4.1");
-        _isVersion40 = -1 < _version.indexOf("4.0");
+        _isVersion41 = normalizedVersion.startsWith("4.1");
+        _isVersion40 = normalizedVersion.startsWith("4.0");
 
-        _isVersion4 = -1 < _version.indexOf("4.");
-        _isVersion3 = -1 < _version.indexOf("3.");
-        _isVersion2 = -1 < _version.indexOf("2.");
+        _isVersion4 = normalizedVersion.startsWith("4.");
+        _isVersion3 = normalizedVersion.startsWith("3.");
+        _isVersion2 = normalizedVersion.startsWith("2.");
        
         _isMacOS = _platform.equals(MACOS);
         _isWindows = _platform.equals(WINDOWS);
@@ -176,6 +181,21 @@ public class ERXBasicBrowser extends ERXBrowser {
         _isIPhone = _platform.equals(IPHONE);
         _isIPad = _platform.equals(IPAD);
         _isUnknownPlatform = _platform.equals(UNKNOWN_PLATFORM);
+        
+        if (_version.equals(UNKNOWN_VERSION)) {
+        	_majorVersion = Integer.valueOf(0);
+        } else {
+	        String majorVersion = normalizedVersion;
+	        if (majorVersion.indexOf(".") != -1) {
+	        	majorVersion = majorVersion.substring(0, majorVersion.indexOf("."));
+	        }
+	        try {
+	        	_majorVersion = Integer.valueOf(majorVersion);
+	        } catch (NumberFormatException e) {
+	        	log.info("could not determine major version from '" + majorVersion + "'", e);
+	        	throw e;
+			}
+        }
     }
 
     public String browserName() {
@@ -184,6 +204,11 @@ public class ERXBasicBrowser extends ERXBrowser {
 
     public String version() {
         return _version;
+    }
+    
+    @Override
+    public Integer majorVersion() {
+    	return _majorVersion;
     }
 
     public String mozillaVersion() {

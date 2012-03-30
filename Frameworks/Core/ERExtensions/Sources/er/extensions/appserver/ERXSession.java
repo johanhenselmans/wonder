@@ -719,6 +719,17 @@ public class ERXSession extends ERXAjaxSession implements Serializable {
   public boolean useSecureSessionCookies() {
 	  return ERXProperties.booleanForKeyWithDefault("er.extensions.ERXSession.useSecureSessionCookies", false);
   }
+  
+  /**
+   * Override and return true, or set er.extensions.ERXSession.useHttpOnlySessionCookies if you want http-only session
+   * and instance cookies. This prevents the XSS attack. Note that after setting this true, you will not allowed to
+   * read this cookies from yours javascript code.
+   * 
+   * @return whether or not http-only cookies are enabled
+   */
+  public static boolean useHttpOnlySessionCookies() {
+      return ERXProperties.booleanForKeyWithDefault("er.extensions.ERXSession.useHttpOnlySessionCookies", false);
+  }
 
   protected void _convertSessionCookiesToSecure(WOResponse response) {
 	    if(storesIDsInCookies() && !ERXRequest._isSecureDisabled()) {
@@ -746,12 +757,41 @@ public class ERXSession extends ERXAjaxSession implements Serializable {
 		}
   }
   
+  protected void _convertSessionCookiesToHttpOnly(final WOResponse response) {
+      if (storesIDsInCookies()) {
+          for (WOCookie cookie : (NSArray<WOCookie>) response.cookies()) {
+              String sessionIdKey;
+              String instanceIdKey;
+              if (ERXApplication.isWO54()) {
+                  try {
+                      sessionIdKey = (String) WOApplication.class.getMethod("sessionIdKey").invoke(
+                              WOApplication.application());
+                      instanceIdKey = (String) WOApplication.class.getMethod("instanceIdKey").invoke(
+                              WOApplication.application());
+                  } catch (Throwable e) {
+                      throw new NSForwardException(e);
+                  }
+              } else {
+                  sessionIdKey = WORequest.SessionIDKey;
+                  instanceIdKey = WORequest.InstanceKey;
+              }
+              String cookieName = cookie.name();
+              if (sessionIdKey.equals(cookieName) || instanceIdKey.equals(cookieName)) {
+                  cookie.setIsHttpOnly(true);
+              }
+          }
+      }
+  }
+  
   @Override
 	public void _appendCookieToResponse(WOResponse response) {
 		super._appendCookieToResponse(response);
 		if (useSecureSessionCookies()) {
 			_convertSessionCookiesToSecure(response);
 		}
+        if (useHttpOnlySessionCookies()) {
+            _convertSessionCookiesToHttpOnly(response);
+        }		
 	}
   
   @Override
@@ -760,6 +800,9 @@ public class ERXSession extends ERXAjaxSession implements Serializable {
 		if (useSecureSessionCookies()) {
 			_convertSessionCookiesToSecure(response);
 		}
+        if (useHttpOnlySessionCookies()) {
+            _convertSessionCookiesToHttpOnly(response);
+        }		
 	}
   	  	
   	public TimeZone timeZone() {

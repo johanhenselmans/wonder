@@ -25,21 +25,6 @@
         <webobjects.version>5.4.3</webobjects.version>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>hudson</id>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>wocommunity.deployment</id>
-                    <uniqueVersion>false</uniqueVersion>
-                    <name>WOCommunity Maven2 Snapshots Repository</name>
-                    <!-- Saving some bandwidth -->
-                    <url>http://wo-repository.moleque.com.br/nexus/content/repositories/snapshots/</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-    </profiles>
-
     <build>
         <testSourceDirectory>${project.basedir}/Tests</testSourceDirectory>
         <pluginManagement>
@@ -175,6 +160,11 @@
                 <artifactId>ERExtensions</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+				<groupId>wonder.core</groupId>
+				<artifactId>ERFoundation</artifactId>
+				<version>1.0</version>
+			</dependency>
             <dependency>
                 <groupId>wonder.core</groupId>
                 <artifactId>ERDirectToWeb</artifactId>
@@ -363,12 +353,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.5.8</version>
+                <version>1.6.3</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.5.8</version>
+                <version>1.6.3</version>
             </dependency>
             <dependency>
                 <groupId>ognl</groupId>
@@ -539,10 +529,10 @@
                 <classifier>asl</classifier>
             </dependency>
             <dependency>
-                <groupId>org.openqa.selenium.client-drivers</groupId>
-                <artifactId>selenium-java-client-driver</artifactId>
-                <version>1.0-beta-1</version>
-            </dependency>
+				<groupId>org.seleniumhq.selenium.client-drivers</groupId>
+				<artifactId>selenium-java-client-driver</artifactId>
+				<version>1.0.2</version>
+			</dependency>
             <dependency>
                 <groupId>jtidy</groupId>
                 <artifactId>jtidy</artifactId>

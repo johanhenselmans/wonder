@@ -7,6 +7,8 @@ import com.webobjects.foundation.NSDictionary;
 import er.extensions.appserver.ERXWOContext;
 import er.extensions.eof.ERXGenericRecord;
 import er.extensions.foundation.ERXStringUtilities;
+import er.rest.ERXRestContext;
+import er.rest.IERXRestDelegate;
 
 /**
  * Utilities for generating URLs to ERXRouteController routes (quicky impl).
@@ -20,7 +22,8 @@ public class ERXRouteUrlUtils {
 	}
 
 	public static String actionUrlForRecord(WOContext context, ERXGenericRecord record, String action, String format, NSDictionary<String, Object> queryParameters, boolean secure, boolean includeSessionID) {
-		String url = ERXWOContext.directActionUrl(context, ERXRouteUrlUtils.actionUrlPathForEntity(record.entityName(), record.primaryKeyInTransaction(), action, format), queryParameters, Boolean.valueOf(secure), includeSessionID);
+		Object entityID = IERXRestDelegate.Factory.delegateForEntityNamed(record.entityName()).primaryKeyForObject(record, new ERXRestContext(record.editingContext()));
+		String url = ERXWOContext.directActionUrl(context, ERXRouteUrlUtils.actionUrlPathForEntity(record.entityName(), entityID, action, format), queryParameters, Boolean.valueOf(secure), includeSessionID);
 		url = ERXRouteUrlUtils.changeDirectActionRequestHandlerTo(url, ERXRouteRequestHandler.Key);
 		return url;
 	}
@@ -50,7 +53,9 @@ public class ERXRouteUrlUtils {
 			}
 		}
 		else if (action != null && !"index".equals(action)) {
-			sb.append("/");
+			if ((entityName != null) && (entityName.length() > 0)) {
+				sb.append("/");				
+			}
 			sb.append(action);
 		}
 		sb.append(".");

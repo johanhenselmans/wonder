@@ -416,22 +416,6 @@ public class ERXRouteController extends WODirectAction {
 				type = (String) request().userInfo().objectForKey(ERXRouteRequestHandler.TypeKey);
 			}
 			
-//			if (type == null) {
-//				List<String> acceptTypesList = new LinkedList<String>();
-//				String accept = request().headerForKey("Accept");
-//				if (accept != null) {
-//					String[] acceptTypes = accept.split(",");
-//					for (String acceptType : acceptTypes) {
-//						int semiIndex = acceptType.indexOf(";");
-//						if (semiIndex == -1) {
-//							acceptTypesList.add(acceptType);
-//						} else { 
-//							acceptTypesList.add(acceptType.substring(0, semiIndex));
-//						}
-//					}
-//				}
-//			}
-			
 			/*
 			 * To trap things like this: 
 			 *   Content-Type: application/json
@@ -443,6 +427,10 @@ public class ERXRouteController extends WODirectAction {
 					String[] types = contentType.split("/");
 					if (types.length == 2) {
 						type = types[1];
+						String[] charsets = type.split(";");
+						if (charsets.length >0) {
+							type = charsets[0];
+						}
 					}
 				}
 			}
@@ -1118,6 +1106,19 @@ public class ERXRouteController extends WODirectAction {
 			return errorResponse(t, WOMessage.HTTP_STATUS_INTERNAL_ERROR);
 		}
 		return response(format, responseNode);
+	}
+	
+	/**
+	 * Returns an response with the given HTTP status and without any body content.
+	 * Useful to return HTTP codes like 410 (Gone) or 304 (Not Modified)
+	 * @param status
+	 *            the HTTP status code
+	 * @return an error WOResponse
+	 */
+	public WOActionResults response(int status) {
+		WOResponse response = WOApplication.application().createResponseInContext(context());
+		response.setStatus(status);
+		return response;
 	}
 
 	/**

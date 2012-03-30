@@ -408,8 +408,9 @@ public class ERXStringUtilities {
      */
     public static Integer integerWithString(String s) {
         try {
-            return ERXConstant.integerForString(s);
-        } catch (Exception e) {
+            return ERXConstant.integerForInt(Integer.parseInt(s));
+        } catch (NumberFormatException e) {
+        	// ignore
         }
         return null;
     } 
@@ -1084,7 +1085,11 @@ public class ERXStringUtilities {
     }
 
     /**
-     * Capitalizes a given string.
+     * Capitalizes a given string. That is, the first character of the returned
+     * string will be upper case, and other characters will be unchanged. For
+     * example, for the input string "{@code you have a dog}", this method would
+     * return "{@code You have a dog}".
+     * 
      * @param value to be capitalized
      * @return capitalized string
      */
@@ -1126,7 +1131,14 @@ public class ERXStringUtilities {
     }
     
     /**
-     * Capitalizes all the strings in a given string.
+     * Capitalizes all the strings in a given string. That is, the first
+     * character of each (whitespace-delimited) word in the input string will be
+     * upper case, and other characters will be unchanged. Additionally, each
+     * region of contiguous whitespace in the original string is converted to a
+     * single space in the result. For example, for the input string
+     * "{@code you  have  a  dog}" (with two spaces between each word), this
+     * method would return "{@code You Have A Dog}".
+     * 
      * @param value to be capitalized
      * @return capitalized string
      */    
@@ -2197,27 +2209,38 @@ public class ERXStringUtilities {
 	 * Removes HTML characters from the given string.
 	 * 
 	 * @param str the string to remove HTML from
+	 * @param convertChars set to true if you want html special chars to be converted ( ex. &copy; to (C) ), false otherwise
 	 * @return the string without HTML characters in it
 	 */
-	public static String stripHtml(String str) {
-		String stripped = str;
-		if (stripped != null) {
-			stripped = stripped.replaceAll("<[^>]*>", " ");
-			stripped = stripped.replaceAll("\\s+", " ");
-			stripped = stripped.replaceAll("&#8217;", "'");
-			stripped = stripped.replaceAll("&#169;", "(C)");
-			stripped = stripped.replaceAll("&#215;", " x ");
-			stripped = stripped.replaceAll("&#8230;", "...");
-			stripped = stripped.replaceAll("&#8212;", " -- ");
-			stripped = stripped.replaceAll("&#8211;", " - ");
-			stripped = stripped.replaceAll("&#8220;", "\"");
-			stripped = stripped.replaceAll("&#8221;", "\"");
-			stripped = stripped.replaceAll("&#174;", "(C)");
-			stripped = stripped.replaceAll("&#174;", "(R)");
-			stripped = stripped.replaceAll("&#8482;", "(TM)");
+	public static String stripHtml(String str, boolean convertChars) {
+ 		String stripped = str;
+ 		if (stripped != null) {
+ 			stripped = stripped.replaceAll("<[^>]*>", " ");
+			if(convertChars) {
+				stripped = stripped.replaceAll("\\s+", " ");
+				stripped = stripped.replaceAll("&#8217;", "'");
+				stripped = stripped.replaceAll("&#169;", "(C)");
+				stripped = stripped.replaceAll("&#215;", " x ");
+				stripped = stripped.replaceAll("&#8230;", "...");
+				stripped = stripped.replaceAll("&#8212;", " -- ");
+				stripped = stripped.replaceAll("&#8211;", " - ");
+				stripped = stripped.replaceAll("&#8220;", "\"");
+				stripped = stripped.replaceAll("&#8221;", "\"");
+				stripped = stripped.replaceAll("&#174;", "(C)");
+				stripped = stripped.replaceAll("&#174;", "(R)");
+				stripped = stripped.replaceAll("&#8482;", "(TM)");
 			stripped = stripped.trim();
-		}
-		return stripped;
+			}
+ 		}
+ 		return stripped;
+ 	}
+
+
+	/**
+	 * @deprecated  Replaced by stripHtml(str, false)
+	 */
+	public static String stripHtml(String str) {
+		return stripHtml(str, false);
 	}
 
 	/**
