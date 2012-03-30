@@ -1,0 +1,13 @@
+
+DateTimeField : WOTextField {
+  value = value;
+  dateformat = dateformat;
+  class = dateFormatString;
+  onclick = dateTimePickerOpenScript;
+  id = elementID;
+}
+
+DateTimePickerCreateScript : WOString {
+  value = dateTimePickerCreateScript;
+  escapeHTML = false;
+}

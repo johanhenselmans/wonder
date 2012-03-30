@@ -1,0 +1,10 @@
+DateTimePicker : CCDateTimePicker {
+  value = objectPropertyValue;
+  dateformat=formatter;
+  cssFile = cssFile;
+  cssFramework = cssFramework;
+  use24hrs=use24hrs;
+  locale=locale;
+  datePicker=datePicker;
+  timePicker=timePicker;
+}
